@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Terminal Quest 🎮</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#334155;--surface3:#475569;
+  --text:#e2e8f0;--muted:#94a3b8;--accent:#7c3aed;--accent2:#a855f7;
+  --gold:#fbbf24;--green:#10b981;--red:#f43f5e;--blue:#38bdf8;
+  --orange:#f97316;--teal:#14b8a6;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+#app{max-width:600px;margin:0 auto;min-height:100vh;padding-bottom:80px;position:relative;}
+
+/* NAV */
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:600px;background:var(--surface);
+  border-top:1px solid var(--surface2);display:flex;z-index:100;
+}
+.nav-btn{
+  flex:1;padding:10px 4px 14px;background:none;border:none;color:var(--muted);
+  font-size:10px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:3px;transition:color .2s;
+}
+.nav-btn .icon{font-size:20px;}
+.nav-btn.active{color:var(--accent2);}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#1e1b4b,#1e293b);
+  padding:16px 16px 12px;border-bottom:1px solid var(--surface2);
+  position:sticky;top:0;z-index:50;
+}
+.header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.logo{font-size:20px;font-weight:800;letter-spacing:-0.5px;}
+.logo span{color:var(--accent2);}
+.xp-chip{background:var(--surface2);border-radius:20px;padding:5px 12px;
+  font-size:13px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:5px;}
+.xp-bar-wrap{background:var(--surface2);border-radius:8px;height:6px;overflow:hidden;}
+.xp-bar{height:100%;border-radius:8px;transition:width .5s ease;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.xp-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* CARDS */
+.card{
+  background:var(--surface);border-radius:16px;margin:12px 14px;
+  border:1px solid var(--surface2);overflow:hidden;cursor:pointer;
+  transition:transform .15s,border-color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.card:active{transform:scale(0.98);}
+.card.locked{opacity:0.45;cursor:not-allowed;}
+.card-inner{padding:16px;}
+.level-banner{height:5px;}
+.level-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.level-badge{font-size:36px;line-height:1;}
+.level-num{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.level-title{font-size:19px;font-weight:800;margin-bottom:2px;}
+.level-theme{font-size:13px;color:var(--muted);}
+.level-progress{display:flex;align-items:center;gap:8px;margin-top:12px;}
+.mini-bar-wrap{flex:1;background:var(--surface2);border-radius:4px;height:4px;overflow:hidden;}
+.mini-bar{height:100%;border-radius:4px;transition:width .5s;}
+.level-stats{font-size:12px;color:var(--muted);}
+.lock-badge{font-size:24px;opacity:0.6;}
+.complete-badge{background:var(--green);color:#fff;border-radius:8px;
+  font-size:11px;font-weight:700;padding:3px 10px;}
+
+/* MISSION LIST */
+.back-btn{
+  display:flex;align-items:center;gap:6px;padding:14px 16px 6px;
+  background:none;border:none;color:var(--accent2);font-size:15px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.level-hero{padding:12px 16px 16px;border-bottom:1px solid var(--surface2);}
+.level-hero-title{font-size:22px;font-weight:800;margin-bottom:4px;}
+.level-hero-sub{font-size:14px;color:var(--muted);}
+.mission-list{padding:8px 0;}
+.mission-row{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:none;border:none;width:100%;text-align:left;cursor:pointer;
+  border-bottom:1px solid var(--surface2);color:var(--text);
+  -webkit-tap-highlight-color:transparent;transition:background .15s;
+}
+.mission-row:active{background:var(--surface2);}
+.mission-icon{
+  width:40px;height:40px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+  border:2px solid var(--surface2);
+}
+.mission-icon.done{border-color:var(--green);background:rgba(16,185,129,0.12);}
+.mission-icon.boss{border-color:var(--gold);}
+.mission-text{flex:1;min-width:0;}
+.mission-title-row{display:flex;align-items:center;gap:6px;}
+.mission-name{font-size:15px;font-weight:600;}
+.boss-tag{background:var(--gold);color:#000;border-radius:4px;
+  font-size:10px;font-weight:800;padding:1px 6px;letter-spacing:0.5px;}
+.mission-xp{font-size:12px;color:var(--muted);}
+.mission-arrow{color:var(--muted);font-size:18px;flex-shrink:0;}
+
+/* MISSION DETAIL */
+.mission-header{
+  background:linear-gradient(135deg,var(--surface),var(--surface2));
+  padding:16px;border-bottom:1px solid var(--surface2);
+}
+.mission-header-emoji{font-size:32px;margin-bottom:8px;}
+.mission-header-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+.mission-header-meta{font-size:13px;color:var(--muted);}
+.section{padding:16px;}
+.section-label{
+  font-size:11px;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--accent2);margin-bottom:10px;
+}
+.explanation{font-size:15px;line-height:1.75;color:var(--text);}
+.explanation code{
+  background:var(--surface2);color:var(--blue);
+  padding:1px 5px;border-radius:4px;font-family:monospace;font-size:13px;
+}
+.code-block{
+  background:#0d1117;border:1px solid var(--surface2);border-radius:10px;
+  padding:14px;overflow-x:auto;margin:0;
+}
+.code-block pre{
+  font-family:'Fira Code','Courier New',Courier,monospace;
+  font-size:13px;line-height:1.7;color:#c9d1d9;white-space:pre;
+}
+.code-block .comment{color:#6e7681;}
+.code-block .cmd{color:#79c0ff;}
+
+/* CROSS-REFERENCE TABLE */
+.cross-table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+.cross-table th{background:var(--surface2);padding:8px 10px;text-align:left;
+  font-size:11px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;}
+.cross-table td{padding:8px 10px;border-bottom:1px solid var(--surface2);vertical-align:middle;}
+.cross-table tr:last-child td{border-bottom:none;}
+.cross-table .cmd-cell{font-family:monospace;font-size:12px;color:var(--blue);}
+.cross-table .yes{color:var(--green);font-weight:700;text-align:center;}
+.cross-table .no{color:var(--red);font-weight:700;text-align:center;}
+.cross-table .partial{color:var(--gold);font-weight:700;text-align:center;font-size:11px;}
+.cross-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--surface2);}
+.cross-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;}
+.cross-legend span{font-size:12px;color:var(--muted);}
+
+/* QUIZ */
+.quiz-box{
+  background:var(--surface);border-radius:16px;border:1px solid var(--surface2);
+  margin:0 16px 16px;overflow:hidden;
+}
+.quiz-q{padding:14px 16px;font-size:15px;font-weight:600;
+  border-bottom:1px solid var(--surface2);line-height:1.5;}
+.quiz-options{padding:8px;}
+.quiz-opt{
+  width:100%;background:none;border:none;color:var(--text);
+  text-align:left;padding:12px 14px;border-radius:10px;font-size:14px;
+  cursor:pointer;margin-bottom:4px;border:2px solid transparent;
+  transition:all .15s;display:block;line-height:1.4;
+  -webkit-tap-highlight-color:transparent;
+}
+.quiz-opt:hover:not(.answered){background:var(--surface2);}
+.quiz-opt.correct{background:rgba(16,185,129,0.15);border-color:var(--green);color:var(--green);}
+.quiz-opt.wrong{background:rgba(244,63,94,0.15);border-color:var(--red);color:var(--red);}
+.quiz-opt.unselected-correct{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.4);}
+.quiz-feedback{
+  padding:12px 14px;font-size:14px;font-weight:600;
+  border-top:1px solid var(--surface2);display:flex;align-items:center;gap:8px;
+}
+.quiz-feedback.good{color:var(--green);}
+.quiz-feedback.bad{color:var(--red);}
+
+/* COMPLETE BUTTON */
+.complete-btn{
+  width:calc(100% - 32px);margin:0 16px 16px;padding:16px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;border-radius:14px;font-size:17px;
+  font-weight:800;cursor:pointer;letter-spacing:0.3px;
+  -webkit-tap-highlight-color:transparent;transition:opacity .2s;
+}
+.complete-btn:active{opacity:0.85;}
+.complete-btn:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed;}
+.already-done{
+  width:calc(100% - 32px);margin:0 16px 16px;padding:14px;
+  background:rgba(16,185,129,0.12);border:2px solid var(--green);
+  border-radius:14px;font-size:15px;font-weight:700;
+  color:var(--green);text-align:center;
+}
+
+/* HOME SCREEN */
+.home-hero{text-align:center;padding:24px 16px 16px;}
+.home-hero h1{font-size:26px;font-weight:900;margin-bottom:6px;}
+.home-hero p{font-size:14px;color:var(--muted);max-width:300px;margin:0 auto;}
+.section-title{font-size:13px;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;color:var(--muted);padding:8px 16px 0;}
+
+/* CHEATSHEET */
+.cheat-search{
+  margin:12px 14px;display:flex;gap:8px;
+  background:var(--surface);border:1px solid var(--surface2);
+  border-radius:12px;overflow:hidden;align-items:center;padding:0 12px;
+}
+.cheat-search input{
+  flex:1;background:none;border:none;color:var(--text);
+  font-size:15px;padding:12px 0;outline:none;
+}
+.cheat-search input::placeholder{color:var(--muted);}
+.cheat-cat{padding:8px 16px 4px;font-size:11px;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);}
+.cheat-row{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 16px;
+  border-bottom:1px solid var(--surface2);
+}
+.cheat-cmd{
+  background:var(--surface2);border-radius:6px;padding:4px 10px;
+  font-family:monospace;font-size:13px;color:var(--blue);
+  flex-shrink:0;max-width:180px;word-break:break-all;
+}
+.cheat-desc{font-size:13px;color:var(--muted);line-height:1.4;padding-top:4px;}
+
+/* BADGES */
+.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;}
+.badge-card{
+  background:var(--surface);border:1px solid var(--surface2);
+  border-radius:14px;padding:20px 14px;text-align:center;
+}
+.badge-card.earned{border-color:var(--gold);background:rgba(251,191,36,0.05);}
+.badge-card.locked{opacity:0.4;}
+.badge-emoji{font-size:42px;margin-bottom:8px;}
+.badge-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.badge-level{font-size:11px;color:var(--muted);}
+.badge-status{font-size:11px;margin-top:6px;font-weight:700;}
+.badge-status.earned{color:var(--gold);}
+.badge-status.locked{color:var(--muted);}
+
+/* ═══ TERMINAL SIMULATOR ═══ */
+.term-wrap{
+  display:flex;flex-direction:column;height:calc(100vh - 80px);
+  font-family:'Fira Code','Courier New',monospace;
+}
+.term-toolbar{
+  background:var(--surface);border-bottom:1px solid var(--surface2);
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+}
+.term-toolbar-title{font-size:14px;font-weight:700;}
+.term-mode-badge{
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;
+  background:rgba(16,185,129,0.15);color:var(--green);border:1px solid var(--green);
+}
+.term-mode-badge.ai-mode{
+  background:rgba(168,85,247,0.15);color:var(--accent2);border-color:var(--accent2);
+}
+.term-hint{
+  background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);
+  border-radius:8px;margin:8px 10px;padding:8px 12px;
+  font-size:12px;color:var(--blue);line-height:1.5;font-family:sans-serif;
+}
+.term-hint strong{color:var(--blue);}
+.term-output{
+  flex:1;overflow-y:auto;padding:12px 14px;background:#090e1a;
+  font-size:13px;line-height:1.7;
+}
+.term-line{white-space:pre-wrap;word-break:break-all;}
+.term-line.prompt{color:#7c3aed;}
+.term-line.prompt span{color:#a855f7;}
+.term-line.prompt .ai-prompt{color:#a855f7;}
+.term-line.output{color:#c9d1d9;}
+.term-line.error{color:#f43f5e;}
+.term-line.success{color:#10b981;}
+.term-line.info{color:#38bdf8;}
+.term-line.ai-response{color:#e2d9f3;}
+.term-line.dim{color:#475569;}
+.term-input-row{
+  display:flex;align-items:center;gap:0;
+  background:#090e1a;border-top:1px solid var(--surface2);
+  padding:10px 14px;
+}
+.term-prompt-label{color:#a855f7;font-size:13px;white-space:nowrap;flex-shrink:0;}
+.term-input{
+  flex:1;background:none;border:none;outline:none;
+  color:#e2e8f0;font-family:'Fira Code','Courier New',monospace;
+  font-size:13px;padding:0 6px;caret-color:#a855f7;
+}
+.term-send{
+  background:none;border:none;color:var(--accent2);
+  font-size:18px;cursor:pointer;padding:0 4px;
+  -webkit-tap-highlight-color:transparent;
+}
+.term-clear-btn{
+  background:var(--surface2);border:none;color:var(--muted);
+  border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* UTIL */
+.divider{height:1px;background:var(--surface2);margin:0 16px;}
+.spacer{height:12px;}
+.tag{display:inline-block;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;}
+.info-box{
+  background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);
+  border-radius:10px;padding:12px 14px;margin:8px 0;
+  font-size:14px;line-height:1.6;color:var(--text);
+}
+.info-box .info-label{font-size:11px;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// VIRTUAL FILESYSTEM FOR TERMINAL SIMULATOR
+// ═══════════════════════════════════════════════════
+const VFS = {
+  '~': ['Desktop/', 'Documents/', 'Downloads/', 'notes.txt'],
+  '~/Desktop': ['my-quest/'],
+  '~/Desktop/my-quest': ['journal.txt', 'about.md', 'CLAUDE.md', '.git/'],
+  '~/Documents': [],
+  '~/Downloads': [],
+};
+const VFS_FILES = {
+  '~/notes.txt': 'Remember:\n  cd to navigate\n  ls to list\n  pwd to see where you are\n\nGood luck on your quest! 🎮',
+  '~/Desktop/my-quest/journal.txt': 'My terminal learning journey\n\n[Entry 1]\nToday I learned how to use pwd and ls.\nSmall steps!',
+  '~/Desktop/my-quest/about.md': '# About Me\n\nLearning terminal, git, and Claude Code.\nThis file was created during my quest.',
+  '~/Desktop/my-quest/CLAUDE.md': '# My Quest Project\n\n## About\nLearning terminal with Terminal Quest app.\n\n## Rules\n- Always explain before changing files\n- Keep code simple',
+};
+
+let termCwd = '~';
+let termGitInited = false;
+let termMode = 'shell'; // 'shell' or 'claude'
+let termHistory = [];
+let termHistoryIdx = -1;
+let termGitStaged = false;
+let termLines = [];
+let termCommits = [
+  {hash:'a1b2c3d', msg:'Initial commit', author:'Swati Gupta'}
+];
+
+function termPath(dir) {
+  if (dir === '~') return '/home/swati';
+  return '/home/swati/' + dir.replace('~/', '');
+}
+
+function termPrompt() {
+  if (termMode === 'claude') return 'claude> ';
+  return `swati@quest:${termCwd}$ `;
+}
+
+function termAddLine(text, cls='output') {
+  termLines.push({text, cls});
+}
+
+function termRender() {
+  const out = document.getElementById('term-out');
+  if (!out) return;
+  out.innerHTML = termLines.map(l => `<div class="term-line ${l.cls}">${escapeHtml(l.text)}</div>`).join('');
+  out.scrollTop = out.scrollHeight;
+  // Update mode badge
+  const badge = document.getElementById('term-mode-badge');
+  if (badge) {
+    badge.textContent = termMode === 'claude' ? '🤖 Claude Code' : '🟢 Shell';
+    badge.className = 'term-mode-badge' + (termMode === 'claude' ? ' ai-mode' : '');
+  }
+  // Update prompt label
+  const pl = document.getElementById('term-prompt-label');
+  if (pl) pl.textContent = termPrompt();
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const CLAUDE_RESPONSES = [
+  "I can see your project files. What would you like me to help with?",
+  "Sure! I'll read the files in this directory and suggest improvements.",
+  "Great question. The `git status` shows you're on the main branch with no uncommitted changes.",
+  "I've analyzed the structure. Want me to create an index.html?",
+  "I can run bash commands for you — just describe what you need in plain English.",
+  "I see CLAUDE.md — I've read it and understand the project context.",
+  "To fix that, I'd suggest running `git add .` then `git commit -m 'your message'`.",
+  "Token tip: use /compact if our conversation gets long — it summarizes and frees context.",
+];
+let claudeResponseIdx = 0;
+
+function handleTermCommand(input) {
+  const raw = input.trim();
+  if (!raw) return;
+
+  // Add to history
+  termHistory.unshift(raw);
+  if (termHistory.length > 50) termHistory.pop();
+  termHistoryIdx = -1;
+
+  // Show the command in prompt style
+  termAddLine(termPrompt() + raw, 'prompt');
+
+  if (termMode === 'claude') {
+    handleClaudeMode(raw);
+    return;
+  }
+
+  // Parse command and args
+  const parts = raw.split(/\s+/);
+  const cmd = parts[0];
+  const args = parts.slice(1);
+
+  // SHELL MODE
+  switch(cmd) {
+    case 'pwd':
+      termAddLine(termPath(termCwd));
+      break;
+    case 'ls': {
+      const flag = args.includes('-la') || args.includes('-l');
+      const entries = VFS[termCwd] || [];
+      if (entries.length === 0) {
+        termAddLine('(empty directory)','dim');
+      } else if (flag) {
+        termAddLine('total ' + (entries.length * 4));
+        entries.forEach(e => {
+          const isDir = e.endsWith('/');
+          const perms = isDir ? 'drwxr-xr-x' : '-rw-r--r--';
+          termAddLine(`${perms}  swati  swati  ${e}`);
+        });
+        if (flag) {
+          termAddLine('-rw-r--r--  swati  swati  .hidden-example','dim');
+        }
+      } else {
+        termAddLine(entries.join('  '));
+      }
+      break;
+    }
+    case 'cd': {
+      const target = args[0] || '~';
+      let newDir;
+      if (target === '~' || target === '') newDir = '~';
+      else if (target === '..') {
+        const parts2 = termCwd.split('/');
+        parts2.pop();
+        newDir = parts2.join('/') || '~';
+      } else if (target === '-') {
+        termAddLine('(previous directory)','dim');
+        break;
+      } else {
+        newDir = termCwd === '~' ? `~/${target.replace('/','').replace('~/','')}` : `${termCwd}/${target.replace('/','').replace('~/','')}`;
+        newDir = newDir.replace('~//','~/');
+        if (!VFS[newDir]) {
+          termAddLine(`cd: no such file or directory: ${target}`,'error');
+          break;
+        }
+      }
+      termCwd = newDir;
+      break;
+    }
+    case 'mkdir': {
+      if (!args[0]) { termAddLine('mkdir: missing operand','error'); break; }
+      const newDir2 = `${termCwd}/${args[0]}`;
+      if (!VFS[termCwd]) VFS[termCwd] = [];
+      const dirName = args[0] + '/';
+      if (!VFS[termCwd].includes(dirName)) VFS[termCwd].push(dirName);
+      VFS[newDir2] = [];
+      termAddLine('','dim');
+      break;
+    }
+    case 'touch': {
+      if (!args[0]) { termAddLine('touch: missing operand','error'); break; }
+      if (!VFS[termCwd]) VFS[termCwd] = [];
+      if (!VFS[termCwd].includes(args[0])) VFS[termCwd].push(args[0]);
+      VFS_FILES[`${termCwd}/${args[0]}`] = '';
+      break;
+    }
+    case 'cat': {
+      if (!args[0]) { termAddLine('cat: missing operand','error'); break; }
+      const fkey = `${termCwd}/${args[0]}`;
+      if (VFS_FILES[fkey] !== undefined) {
+        termAddLine(VFS_FILES[fkey] || '(empty file)');
+      } else {
+        termAddLine(`cat: ${args[0]}: No such file or directory`,'error');
+      }
+      break;
+    }
+    case 'rm': {
+      if (!args[0]) { termAddLine('rm: missing operand','error'); break; }
+      const fname = args[args.length-1];
+      if (VFS[termCwd]) {
+        VFS[termCwd] = VFS[termCwd].filter(f => f !== fname && f !== fname + '/');
+      }
+      delete VFS_FILES[`${termCwd}/${fname}`];
+      break;
+    }
+    case 'echo': {
+      termAddLine(args.join(' '));
+      break;
+    }
+    case 'whoami':
+      termAddLine('swati');
+      break;
+    case 'date':
+      termAddLine(new Date().toDateString() + ' ' + new Date().toLocaleTimeString());
+      break;
+    case 'clear':
+      termLines = [];
+      termRender();
+      return;
+    case 'git':
+      handleGitCommand(args);
+      break;
+    case 'npm': {
+      if (raw.includes('install') && raw.includes('claude-code')) {
+        termAddLine('npm: fetching @anthropic-ai/claude-code...','info');
+        termAddLine('npm: added 1 package (claude-code v1.x.x)','success');
+        termAddLine('');
+        termAddLine('✓ Claude Code installed! Run: claude','success');
+      } else if (args[0] === '--version') {
+        termAddLine('10.5.0');
+      } else {
+        termAddLine(`npm ${args.join(' ')} — (simulated; try: npm --version)`,'dim');
+      }
+      break;
+    }
+    case 'node':
+      if (args[0] === '--version') termAddLine('v20.11.0');
+      else termAddLine('(node REPL not simulated — try: node --version)','dim');
+      break;
+    case 'claude':
+      if (args[0] === '--version') {
+        termAddLine('Claude Code v1.x.x');
+      } else {
+        termMode = 'claude';
+        termAddLine('');
+        termAddLine('╔════════════════════════════════════╗','info');
+        termAddLine('║  Claude Code  ·  AI Coding Partner ║','info');
+        termAddLine('╚════════════════════════════════════╝','info');
+        termAddLine('');
+        termAddLine('Reading project files...','dim');
+        termAddLine(`Found: ${(VFS[termCwd]||[]).join(', ') || '(empty folder)'}`, 'dim');
+        termAddLine('');
+        termAddLine('Type anything to chat. Slash commands: /help /clear /cost /exit','dim');
+      }
+      break;
+    case 'grep':
+      termAddLine(`(grep simulated) Searching for "${args[args.indexOf('-')+1] || args[0]}"...`,'dim');
+      termAddLine('notes.txt:1: Remember:');
+      break;
+    case 'find':
+      termAddLine('./Desktop/my-quest/journal.txt');
+      termAddLine('./Desktop/my-quest/about.md');
+      break;
+    case 'man':
+    case 'help':
+      termAddLine('Available commands in this simulator:','info');
+      termAddLine('  pwd  ls  cd  mkdir  touch  cat  rm  echo');
+      termAddLine('  whoami  date  clear  grep  find');
+      termAddLine('  git (init/status/add/commit/log/push/pull/clone/config)');
+      termAddLine('  npm  node  claude');
+      termAddLine('');
+      termAddLine('Tip: type `claude` to enter Claude Code mode!','info');
+      break;
+    default:
+      termAddLine(`${cmd}: command not found  (try 'help' for available commands)`,'error');
+  }
+}
+
+function handleGitCommand(args) {
+  const sub = args[0];
+  switch(sub) {
+    case '--version':
+      termAddLine('git version 2.43.0'); break;
+    case 'init':
+      termGitInited = true;
+      termAddLine(`Initialized empty Git repository in ${termPath(termCwd)}/.git/`,'success');
+      if (!VFS[termCwd]) VFS[termCwd] = [];
+      if (!VFS[termCwd].includes('.git/')) VFS[termCwd].push('.git/');
+      break;
+    case 'status':
+      if (!termGitInited) {
+        termAddLine('fatal: not a git repository (or any of the parent directories): .git','error');
+        termAddLine('Tip: run `git init` first to create a repo','dim');
+      } else if (termGitStaged) {
+        termAddLine('On branch main');
+        termAddLine('Changes staged for commit:');
+        termAddLine('  (use "git restore --staged <file>" to unstage)');
+        termAddLine('');
+        termAddLine('\tmodified:   journal.txt','success');
+      } else {
+        termAddLine('On branch main');
+        termAddLine("Your branch is up to date with 'origin/main'.");
+        termAddLine('');
+        termAddLine('nothing to commit, working tree clean');
+      }
+      break;
+    case 'add':
+      if (!termGitInited) { termAddLine('fatal: not a git repository','error'); break; }
+      termGitStaged = true;
+      break;
+    case 'commit': {
+      if (!termGitInited) { termAddLine('fatal: not a git repository','error'); break; }
+      const mIdx = args.indexOf('-m');
+      const msg = mIdx >= 0 ? (args[mIdx+1] || 'update').replace(/"/g,'') : 'update';
+      const hash = Math.random().toString(16).substr(2,7);
+      termCommits.unshift({hash, msg, author:'Swati Gupta'});
+      termGitStaged = false;
+      termAddLine(`[main ${hash}] ${msg}`,'success');
+      termAddLine(' 1 file changed, 1 insertion(+)');
+      break;
+    }
+    case 'log':
+      termCommits.slice(0,4).forEach((c,i) => {
+        termAddLine(`commit ${c.hash}${i===0?' (HEAD -> main)':''}`, 'info');
+        termAddLine(`Author: ${c.author} <guptaharshita1990@gmail.com>`);
+        termAddLine(`Date:   ${new Date().toDateString()}`);
+        termAddLine('');
+        termAddLine(`    ${c.msg}`);
+        if (i < termCommits.length-1) termAddLine('','dim');
+      });
+      termAddLine('(end — press q in real terminal to quit log)','dim');
+      break;
+    case 'push':
+      if (!termGitInited) { termAddLine('fatal: not a git repository','error'); break; }
+      termAddLine('Enumerating objects: 3, done.','dim');
+      termAddLine('Counting objects: 100% (3/3), done.','dim');
+      termAddLine('Writing objects: 100% (3/3), done.','dim');
+      termAddLine('To github.com:swati/my-quest.git','success');
+      termAddLine('   a1b2c3d..abc1234  main -> main','success');
+      break;
+    case 'pull':
+      termAddLine("Already up to date.",'success'); break;
+    case 'clone':
+      termAddLine(`Cloning into '${(args[1]||'repo').split('/').pop()}'...`,'info');
+      termAddLine('remote: Counting objects: done.','dim');
+      termAddLine('Receiving objects: 100%','success');
+      break;
+    case 'remote':
+      if (args[1]==='add') {
+        termAddLine('(remote added: ' + (args[3]||args[2]||'origin') + ')','success');
+      } else {
+        termAddLine('origin');
+      }
+      break;
+    case 'config':
+      if (args.includes('user.name') && args[args.length-1] !== 'user.name') {
+        termAddLine('(global user.name set to: ' + args[args.length-1].replace(/"/g,'') + ')','success');
+      } else if (args.includes('user.email') && args[args.length-1] !== 'user.email') {
+        termAddLine('(global user.email set)','success');
+      } else {
+        termAddLine('Swati Gupta');
+      }
+      break;
+    case 'diff':
+      termAddLine('diff --git a/journal.txt b/journal.txt');
+      termAddLine('--- a/journal.txt');
+      termAddLine('+++ b/journal.txt');
+      termAddLine('-My terminal learning journey','error');
+      termAddLine('+My terminal learning journey ✓','success');
+      break;
+    case 'branch':
+      termAddLine('* main'); break;
+    case 'checkout':
+      termAddLine(`Switched to branch '${args[1]||'main'}'`,'success'); break;
+    default:
+      termAddLine(`git: '${sub}' is not a git command. Try: init status add commit log push pull clone config`,'error');
+  }
+}
+
+function handleClaudeMode(input) {
+  if (input.startsWith('/')) {
+    const slash = input.split(' ')[0];
+    switch(slash) {
+      case '/exit':
+        termMode = 'shell';
+        termAddLine('');
+        termAddLine('Exited Claude Code. Back in shell.','dim');
+        break;
+      case '/clear':
+        termLines = termLines.slice(0, termLines.length - 1);
+        termAddLine('(conversation cleared — tokens freed)','success');
+        break;
+      case '/cost':
+        termAddLine('Session usage:','info');
+        termAddLine('  Input tokens:  1,247');
+        termAddLine('  Output tokens:   834');
+        termAddLine('  Estimated cost: ~$0.002');
+        termAddLine('Tip: /compact to summarize and reduce context','dim');
+        break;
+      case '/compact':
+        termAddLine('✓ Conversation summarized. Context reduced by ~60%.','success'); break;
+      case '/help':
+        termAddLine('Claude Code slash commands:','info');
+        termAddLine('  /help     — show this help');
+        termAddLine('  /clear    — clear conversation history (frees tokens)');
+        termAddLine('  /cost     — show token usage for this session');
+        termAddLine('  /compact  — summarize conversation to save context');
+        termAddLine('  /exit     — return to normal terminal');
+        termAddLine('');
+        termAddLine('⚠️  These slash commands ONLY work inside Claude Code.','dim');
+        termAddLine('    They do NOT work in regular terminal or Cowork.','dim');
+        break;
+      default:
+        termAddLine(`Unknown slash command: ${slash}. Try /help`,'error');
+    }
+  } else {
+    // Simulate Claude response
+    const response = CLAUDE_RESPONSES[claudeResponseIdx % CLAUDE_RESPONSES.length];
+    claudeResponseIdx++;
+    termAddLine('');
+    termAddLine('Claude: ' + response, 'ai-response');
+    termAddLine('');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// COURSE DATA
+// ═══════════════════════════════════════════════════
+const LEVELS = [
+{
+  id:1, title:"The Awakening", emoji:"🌱", theme:"Terminal Basics",
+  color:"#10b981", xpReward:100, badge:"Explorer", badgeEmoji:"🗺️",
+  missions:[
+    {id:"1.1",title:"Open the Terminal",isBoss:false,xp:10,
+      explanation:`The terminal (also called the command line or shell) is a text-based interface to your computer. Instead of clicking icons, you type commands.
+
+🪟 You're on Windows — you have two main options:
+
+1. PowerShell — search "PowerShell" in the Start menu. Built-in, works for basic stuff.
+
+2. WSL (Recommended!) — WSL stands for Windows Subsystem for Linux. It gives you a real Linux terminal on your Windows PC. All course commands work perfectly in WSL. To install: open PowerShell and type \`wsl --install\`, restart, then open "Ubuntu" from the Start menu.
+
+3. Git Bash — installed automatically when you install Git for Windows. A lightweight option that understands all bash commands.
+
+👉 Use the Terminal Simulator tab (🖥️) to practice commands safely!`,
+      example:`# PowerShell prompt looks like:
+PS C:\\Users\\swati>
+
+# WSL / Ubuntu prompt looks like:
+swati@DESKTOP:~$
+
+# Git Bash prompt looks like:
+swati@DESKTOP MINGW64 ~$
+
+# The ~ means you're in your home folder
+# The $ means it's ready for a command`,
+      quiz:{question:"Which terminal option gives you a full Linux experience on Windows?",options:["PowerShell","WSL (Windows Subsystem for Linux)","Notepad","Task Manager"],correct:1}
+    },
+    {id:"1.2",title:"Know Where You Are — pwd",isBoss:false,xp:10,
+      explanation:`When you're in the terminal, you're always "inside" a folder. The command \`pwd\` stands for Print Working Directory — it tells you your current location.
+
+Think of it like asking "where am I?" and your computer answering with the full path.
+
+Note: In PowerShell, \`pwd\` also works (it's an alias), or you can use \`Get-Location\`.`,
+      example:`# In WSL / Git Bash:
+$ pwd
+/home/swati
+
+# In PowerShell:
+PS> pwd
+Path: C:\\Users\\swati
+
+# Both mean: you're in your user's home folder`,
+      quiz:{question:"What does `pwd` stand for?",options:["Password","Print Working Directory","Public Web Data","Previous Working Directory"],correct:1}
+    },
+    {id:"1.3",title:"Look Around — ls",isBoss:false,xp:10,
+      explanation:`\`ls\` stands for "list". It shows all the files and folders in your current directory.
+
+Try \`ls -la\` for extra detail: hidden files (starting with .) and permissions.
+
+PowerShell note: use \`dir\` or \`Get-ChildItem\` instead of \`ls\` (though \`ls\` works as an alias in many cases).`,
+      example:`$ ls
+Desktop    Documents    Downloads    notes.txt
+
+$ ls -la
+drwxr-xr-x  Documents
+-rw-r--r--  notes.txt
+-rw-r--r--  .hidden-file    # hidden files start with .
+
+# PowerShell equivalent:
+PS> dir`,
+      quiz:{question:"What does `ls -la` show that plain `ls` doesn't?",options:["Larger file sizes","Hidden files and permissions","Only folders","Recently modified files"],correct:1}
+    },
+    {id:"1.4",title:"Move Around — cd",isBoss:false,xp:10,
+      explanation:`\`cd\` stands for Change Directory. It's how you navigate between folders.
+
+• \`cd Documents\` — go into the Documents folder
+• \`cd ..\` — go up one level to the parent folder
+• \`cd ~\` — go home from anywhere
+• \`cd -\` — go back to where you just were (WSL/Git Bash)
+
+This works the same in WSL, Git Bash, AND PowerShell — one of the commands that crosses over!`,
+      example:`$ pwd
+/home/swati
+
+$ cd Desktop
+$ pwd
+/home/swati/Desktop
+
+$ cd ..
+$ pwd
+/home/swati
+
+$ cd ~       # home from anywhere
+
+# PowerShell: same commands work!`,
+      quiz:{question:"How do you go UP one folder level?",options:["cd up","cd ..","cd /","cd back"],correct:1}
+    },
+    {id:"1.5",title:"Create Folders & Files",isBoss:false,xp:15,
+      explanation:`Two essential creation commands:
+
+\`mkdir\` (Make Directory) — creates a new folder.
+\`touch\` — creates a new empty file. (WSL/Git Bash)
+
+PowerShell version of touch: \`New-Item file.txt\` or \`ni file.txt\`.
+
+Both \`mkdir\` and \`touch\` work in WSL and Git Bash. Only \`mkdir\` works natively in PowerShell.`,
+      example:`# Create a folder (works everywhere):
+$ mkdir my-project
+
+# Create a file (WSL/Git Bash):
+$ touch README.md
+
+# Create a file in PowerShell:
+PS> New-Item README.md -ItemType File
+
+# Create multiple folders:
+$ mkdir css js images`,
+      quiz:{question:"Which command creates a new folder in all terminal types?",options:["touch","create","mkdir","newdir"],correct:2}
+    },
+    {id:"1.6",title:"Read Files — cat",isBoss:false,xp:10,
+      explanation:`\`cat\` prints the contents of a file directly in your terminal.
+
+For long files, use \`less filename\` — lets you scroll. Press \`q\` to quit.
+
+\`cat\` works in WSL and Git Bash. In PowerShell, use \`Get-Content filename\` (or \`cat\` as an alias — it usually works too!).`,
+      example:`$ cat notes.txt
+Remember:
+  cd to navigate
+  ls to list
+
+# For a long file:
+$ less bigfile.txt
+# Arrow keys to scroll, q to quit
+
+# PowerShell:
+PS> Get-Content notes.txt`,
+      quiz:{question:"What does `cat` do in the terminal?",options:["Delete a file","Open a file editor","Print file contents to the terminal","Copy a file"],correct:2}
+    },
+    {id:"1.7",title:"⚔️ Boss Challenge",isBoss:true,xp:45,
+      explanation:`Practice these steps in the Terminal Simulator (🖥️ tab) AND then try in your real terminal!
+
+1. Run \`pwd\` to see where you are
+2. Run \`ls\` to see what's here
+3. Use \`cd Desktop\` to go to the Desktop
+4. Create a folder: \`mkdir my-quest\`
+5. Go inside: \`cd my-quest\`
+6. Create a file: \`touch journal.txt\`
+7. Confirm with \`ls\`
+8. Read it with \`cat journal.txt\`
+
+You've earned the Explorer badge! 🗺️`,
+      example:`$ pwd
+/home/swati
+
+$ ls
+Desktop  Documents  Downloads  notes.txt
+
+$ cd Desktop
+$ mkdir my-quest
+$ cd my-quest
+$ touch journal.txt
+$ ls
+journal.txt`,
+      quiz:{question:"After `mkdir my-quest`, how do you go inside that folder?",options:["enter my-quest","open my-quest","cd my-quest","go my-quest"],correct:2}
+    }
+  ]
+},
+{
+  id:2, title:"The Time Machine", emoji:"⏳", theme:"Git & GitHub",
+  color:"#f59e0b", xpReward:200, badge:"Time Traveler", badgeEmoji:"⏱️",
+  missions:[
+    {id:"2.1",title:"What is Git?",isBoss:false,xp:15,
+      explanation:`Git is a version control system — it tracks every change you make to files over time. Think of it like save points in a video game.
+
+GitHub is a website that stores your Git projects online (in "repositories" or "repos"). Like Google Drive, but for code — with the ability to go back to any past version.
+
+Key distinction:
+• Git = a tool that runs on YOUR computer
+• GitHub = a website on the internet
+
+They work together but are completely separate things.`,
+      example:`# Without Git:             # With Git:
+notes_v1.txt              notes.txt
+notes_v2.txt              (one file, full history inside,
+notes_final.txt            travel back to any version,
+notes_USE_THIS.txt         collaborate without chaos)`,
+      quiz:{question:"What's the difference between Git and GitHub?",options:["They're the same thing","Git is a website, GitHub is a tool","Git tracks changes locally, GitHub stores them online","GitHub is older than Git"],correct:2}
+    },
+    {id:"2.2",title:"Install & Check Git",isBoss:false,xp:10,
+      explanation:`Check if Git is already installed by running \`git --version\`.
+
+If not installed on Windows:
+• Download Git for Windows from git-scm.com — this also installs Git Bash
+• Or use winget: \`winget install Git.Git\`
+• Or inside WSL: \`sudo apt install git\`
+
+After installing, you'll also have Git Bash available as a terminal option.`,
+      example:`# Check if installed:
+$ git --version
+git version 2.43.0
+
+# If not installed (PowerShell):
+PS> winget install Git.Git
+
+# If using WSL:
+$ sudo apt install git
+
+# After installing Git for Windows,
+# you also get Git Bash terminal!`,
+      quiz:{question:"How do you check if Git is installed?",options:["git check","git --version","which git --installed","git status"],correct:1}
+    },
+    {id:"2.3",title:"Set Up Your Identity",isBoss:false,xp:10,
+      explanation:`Git stamps every commit with your name and email. Set this up once on each computer.
+
+These commands work identically in WSL, Git Bash, and PowerShell — great example of cross-functional commands!`,
+      example:`$ git config --global user.name "Swati Gupta"
+$ git config --global user.email "guptaharshita1990@gmail.com"
+
+# Verify:
+$ git config --global user.name
+Swati Gupta
+
+# See all config:
+$ git config --list`,
+      quiz:{question:"What does `--global` do in git config?",options:["Uploads settings to GitHub","Applies the setting to all projects","Makes your repo public","Syncs with GitHub account"],correct:1}
+    },
+    {id:"2.4",title:"Create Your First Repo",isBoss:false,xp:15,
+      explanation:`\`git init\` turns any ordinary folder into a Git repository. It creates a hidden \`.git\` folder that tracks everything.
+
+Run this inside the folder you want to track. You only do it once per project.
+
+Then check it worked with \`git status\` — you'll see "no commits yet".`,
+      example:`# Navigate to your project folder
+$ cd ~/Desktop/my-quest
+
+# Initialize Git
+$ git init
+Initialized empty Git repository in
+  /home/swati/Desktop/my-quest/.git/
+
+# Check it:
+$ git status
+On branch main
+No commits yet`,
+      quiz:{question:"What does `git init` do?",options:["Downloads a project from GitHub","Turns a folder into a Git repository","Creates a new GitHub account","Deletes version history"],correct:1}
+    },
+    {id:"2.5",title:"Save Changes: add & commit",isBoss:false,xp:20,
+      explanation:`Saving in Git is a two-step process:
+
+Step 1 — Stage: \`git add .\` marks ALL changed files as ready to save. The dot means "everything in this folder".
+
+Step 2 — Commit: \`git commit -m "your message"\` creates the actual save point.
+
+Write meaningful messages! "Fix login bug" is great. "stuff" is terrible.`,
+      example:`# Edit some files, then:
+
+# Stage everything:
+$ git add .
+
+# Or stage one file:
+$ git add journal.txt
+
+# Commit with a message:
+$ git commit -m "Add journal entry"
+
+# See what happened:
+$ git log
+commit a1b2c3d (HEAD -> main)
+    Add journal entry`,
+      quiz:{question:"What does `git add .` do?",options:["Creates a commit","Stages all changed files for the next commit","Downloads from GitHub","Deletes old versions"],correct:1}
+    },
+    {id:"2.6",title:"View History — log, status, diff",isBoss:false,xp:15,
+      explanation:`Three commands that help you understand your project's state:
+
+\`git status\` — see which files have changed since last commit
+\`git log\` — see all your commits (press \`q\` to exit the log viewer)
+\`git diff\` — see the exact line-by-line changes in modified files
+
+These are read-only — safe to run anytime, they change nothing.`,
+      example:`# What files have changed?
+$ git status
+modified:   journal.txt
+
+# See all past commits:
+$ git log
+commit a1b2c3d
+Author: Swati Gupta
+    Add journal entry
+
+# See exactly what changed:
+$ git diff
+-old line
++new line`,
+      quiz:{question:"Which command shows the exact line-by-line changes in a file?",options:["git status","git log","git diff","git check"],correct:2}
+    },
+    {id:"2.7",title:"Connect to GitHub & Push",isBoss:false,xp:25,
+      explanation:`This is the full flow to put your local project on GitHub:
+
+Step 1: Create a repo on github.com (click New Repository, DON'T add a README)
+
+Step 2: Copy the repo URL (looks like: https://github.com/yourusername/my-quest.git)
+
+Step 3: In your terminal, connect and push:
+
+\`git remote add origin <url>\` — links your local repo to GitHub
+\`git branch -M main\` — names your main branch "main"
+\`git push -u origin main\` — uploads everything to GitHub
+
+After the first push, you just need \`git push\` for future updates.
+
+Two ways to authenticate:
+• HTTPS (easier) — uses your GitHub password or token
+• SSH (recommended for daily use) — set up once, never enter password again`,
+      example:`# After creating the GitHub repo:
+
+$ git remote add origin https://github.com/swati/my-quest.git
+$ git branch -M main
+$ git push -u origin main
+
+# First time, GitHub asks for credentials.
+# Future pushes are just:
+$ git push
+
+# See what remotes you have:
+$ git remote -v
+origin  https://github.com/swati/my-quest.git (fetch)
+origin  https://github.com/swati/my-quest.git (push)`,
+      quiz:{question:"What does `git remote add origin <url>` do?",options:["Creates a GitHub account","Downloads the repo","Links your local repo to a GitHub repo","Publishes your code publicly"],correct:2}
+    },
+    {id:"2.8",title:"Clone & Pull",isBoss:false,xp:15,
+      explanation:`Two commands for getting code FROM GitHub to your local machine:
+
+\`git clone <url>\` — download a full repo from GitHub to your computer. Creates a folder with all the files and history. Use this to start working on an existing project.
+
+\`git pull\` — download the latest changes from GitHub into your existing local repo. Use this to stay up to date when others have pushed changes, or when you pushed from another computer.`,
+      example:`# Clone a repo (creates a local copy):
+$ git clone https://github.com/swati/my-quest.git
+Cloning into 'my-quest'...
+remote: Counting objects: done.
+
+$ cd my-quest    # enter the new folder
+$ ls             # files are all here!
+
+# Update your local copy later:
+$ git pull
+Already up to date.
+# or: "1 file updated, fast-forward"`,
+      quiz:{question:"What's the difference between `git clone` and `git pull`?",options:["They're the same","Clone = first download; pull = update existing","Pull = first download; clone = update","Clone only works with SSH"],correct:1}
+    },
+    {id:"2.9",title:"⚔️ Boss Challenge",isBoss:true,xp:80,
+      explanation:`Complete the full GitHub workflow:
+
+1. In the Terminal Simulator, practice: \`git init\`, \`git add .\`, \`git commit -m "first"\`
+2. In real life: create a new repo on github.com (no README)
+3. Connect: \`git remote add origin <your-url>\`
+4. Push: \`git push -u origin main\`
+5. Make a change to any file, then commit and push again
+6. See your commits live on github.com!
+
+You've earned the Time Traveler badge! ⏱️`,
+      example:`# The complete workflow:
+$ git init
+$ git add .
+$ git commit -m "Initial commit"
+$ git remote add origin https://github.com/you/repo.git
+$ git branch -M main
+$ git push -u origin main
+
+# Ongoing workflow after that:
+# edit files...
+$ git add .
+$ git commit -m "describe what changed"
+$ git push`,
+      quiz:{question:"What command updates GitHub with your latest commits?",options:["git upload","git sync","git push","git send"],correct:2}
+    }
+  ]
+},
+{
+  id:3, title:"The Ninja Path", emoji:"🥷", theme:"Intermediate Bash",
+  color:"#6366f1", xpReward:300, badge:"Ninja", badgeEmoji:"🥷",
+  missions:[
+    {id:"3.1",title:"Search Inside Files — grep",isBoss:false,xp:20,
+      explanation:`\`grep\` stands for Global Regular Expression Print. It searches for text inside files.
+
+Incredibly useful for finding where a specific word or error appears across many files.
+
+In PowerShell the equivalent is \`Select-String\` — grep itself only works in WSL/Git Bash.`,
+      example:`# Find "error" in a file:
+$ grep "error" app.log
+
+# Case-insensitive:
+$ grep -i "error" app.log
+
+# Show line numbers:
+$ grep -n "function" script.js
+
+# Search ALL files in a folder:
+$ grep -r "TODO" .
+
+# PowerShell equivalent:
+PS> Select-String "error" app.log`,
+      quiz:{question:"How do you search inside ALL files in the current folder?",options:["grep 'text' --all","grep -r 'text' .","search -all 'text'","grep 'text' *.*"],correct:1}
+    },
+    {id:"3.2",title:"Find Files — find",isBoss:false,xp:15,
+      explanation:`\`find\` locates files and folders by name, type, or other properties.
+
+This is a WSL/Git Bash command. PowerShell equivalent: \`Get-ChildItem -Recurse -Filter *.txt\``,
+      example:`# Find all .txt files:
+$ find . -name "*.txt"
+
+# Find only folders:
+$ find . -type d
+
+# Find files changed in last day:
+$ find . -mtime -1
+
+# PowerShell equivalent:
+PS> Get-ChildItem -Recurse -Filter "*.txt"`,
+      quiz:{question:"What does `find . -type d` find?",options:["All deleted files","Only folders (directories)","Only .d files","Files modified today"],correct:1}
+    },
+    {id:"3.3",title:"Pipes — Chain Commands Together",isBoss:false,xp:20,
+      explanation:`The pipe character \`|\` sends the output of one command as input to another. It's one of the most powerful concepts in the terminal.
+
+Pipes work in WSL, Git Bash, AND PowerShell — another cross-functional concept!`,
+      example:`# Count how many files in a folder:
+$ ls | wc -l
+
+# Find "error" in a process list:
+$ ps aux | grep "node"
+
+# Search git log:
+$ git log | grep "fix"
+
+# Works in PowerShell too:
+PS> dir | Where-Object {$_.Name -like "*.txt"}`,
+      quiz:{question:"What does the pipe | character do?",options:["Deletes files","Sends output of one command to the next","Creates a new file","Opens an editor"],correct:1}
+    },
+    {id:"3.4",title:"Redirect Output — > and >>",isBoss:false,xp:15,
+      explanation:`Save command output to a file instead of printing it to the screen:
+
+• \`>\` writes output to a file (creates or overwrites)
+• \`>>\` appends to a file (adds to the end, never overwrites)
+
+Both work in WSL, Git Bash, AND PowerShell!`,
+      example:`# Save ls output to a file:
+$ ls > filelist.txt
+
+# Add to an existing file (append):
+$ echo "New entry" >> notes.txt
+
+# Save git log to a file:
+$ git log > history.txt
+
+# Check the result:
+$ cat filelist.txt`,
+      quiz:{question:"What's the difference between > and >>?",options:["No difference","> overwrites; >> appends","> appends; >> overwrites","> creates; >> deletes"],correct:1}
+    },
+    {id:"3.5",title:"Environment Variables",isBoss:false,xp:20,
+      explanation:`Environment variables are like global settings your terminal and apps can read. They store API keys, folder paths, and config values.
+
+Important: Claude Code needs your Anthropic API key stored as an environment variable!
+
+The syntax differs between WSL/Git Bash and PowerShell.`,
+      example:`# Set a variable (WSL / Git Bash):
+$ export MY_KEY="abc123"
+$ echo $MY_KEY
+abc123
+
+# Set a variable (PowerShell):
+PS> $env:MY_KEY = "abc123"
+PS> echo $env:MY_KEY
+abc123
+
+# Make it permanent (WSL — add to ~/.bashrc):
+$ echo 'export ANTHROPIC_API_KEY="your-key"' >> ~/.bashrc
+$ source ~/.bashrc`,
+      quiz:{question:"How do you read an environment variable in WSL/Git Bash?",options:["get $VARIABLE","read VARIABLE","echo $VARIABLE","print %VARIABLE%"],correct:2}
+    },
+    {id:"3.6",title:"Your Shell Profile",isBoss:false,xp:20,
+      explanation:`Your shell profile is a file that runs every time you open a terminal. It's where you put shortcuts (aliases), environment variables, and settings you want to always be available.
+
+• WSL/Git Bash: \`~/.bashrc\` or \`~/.bash_profile\`
+• PowerShell: \`$PROFILE\` (a file path shown by this command)`,
+      example:`# Edit your bash profile (WSL/Git Bash):
+$ nano ~/.bashrc
+
+# Add this line to create a shortcut:
+alias ll='ls -la'
+alias gs='git status'
+
+# Apply changes without restarting:
+$ source ~/.bashrc
+
+# Now 'gs' works as a shortcut for git status!
+
+# PowerShell equivalent:
+PS> notepad $PROFILE`,
+      quiz:{question:"What command applies changes to ~/.bashrc without restarting the terminal?",options:["apply ~/.bashrc","source ~/.bashrc","reload shell","bash --restart"],correct:1}
+    },
+    {id:"3.7",title:"Package Managers",isBoss:false,xp:20,
+      explanation:`Package managers install tools and libraries from the internet:
+
+• \`npm\` — installs Node.js packages (works on Windows, Mac, Linux)
+• \`pip\` — installs Python libraries (works everywhere)
+• \`apt\` — installs Ubuntu packages (WSL only)
+• \`winget\` — installs Windows apps (PowerShell)
+• \`brew\` — Mac package manager (not on Windows)
+
+Claude Code itself is installed via npm — the same on all platforms!`,
+      example:`# Install Claude Code (works on Windows WSL/Git Bash):
+$ npm install -g @anthropic-ai/claude-code
+
+# Install a Python library:
+$ pip install requests
+
+# Install git in WSL:
+$ sudo apt install git
+
+# Check npm packages installed:
+$ npm list -g --depth=0
+
+# Windows app via winget:
+PS> winget install Git.Git`,
+      quiz:{question:"Which package manager installs Claude Code?",options:["brew","pip","npm","apt"],correct:2}
+    },
+    {id:"3.8",title:"File Permissions (chmod)",isBoss:false,xp:15,
+      explanation:`In Linux/WSL, every file has permissions — who can read, write, or execute it.
+
+\`ls -la\` shows permissions as a string like \`-rw-r--r--\`.
+\`chmod\` changes permissions.
+
+You mainly need this in WSL. PowerShell has its own permission system (ACLs).`,
+      example:`# See permissions:
+$ ls -la
+-rw-r--r--  notes.txt   # you can read+write, others can only read
+-rwxr-xr-x  script.sh   # everyone can execute (run) this
+
+# Make a script executable:
+$ chmod +x script.sh
+$ ./script.sh    # now you can run it
+
+# Read/write for owner only:
+$ chmod 600 .env`,
+      quiz:{question:"What does `chmod +x script.sh` do?",options:["Deletes the script","Copies the script","Makes the script executable (runnable)","Encrypts the script"],correct:2}
+    },
+    {id:"3.9",title:"⚔️ Boss Challenge",isBoss:true,xp:120,
+      explanation:`Prove your Ninja skills! In WSL or Git Bash:
+
+1. Create an alias \`gs\` for \`git status\` in your \`~/.bashrc\`
+2. Run \`source ~/.bashrc\` to apply it
+3. Test: type \`gs\` and see it work like \`git status\`
+4. Use \`grep\` to search a file for any word
+5. Use a pipe: \`ls | wc -l\` to count files in a folder
+6. Set an environment variable and echo it back
+
+You've earned the Ninja badge! 🥷`,
+      example:`# 1. Add alias to profile:
+$ echo "alias gs='git status'" >> ~/.bashrc
+$ source ~/.bashrc
+
+# 2. Test it:
+$ gs
+On branch main...
+
+# 3. Use grep:
+$ grep "learn" notes.txt
+
+# 4. Use a pipe:
+$ ls | wc -l
+5
+
+# 5. Env variable:
+$ export MY_TEST="hello"
+$ echo $MY_TEST
+hello`,
+      quiz:{question:"After editing ~/.bashrc, how do you apply changes without restarting?",options:["restart terminal","source ~/.bashrc","apply bash","refresh shell"],correct:1}
+    }
+  ]
+},
+{
+  id:4, title:"The AI Forge", emoji:"🤖", theme:"Claude Code & Cross-Tool Commands",
+  color:"#ec4899", xpReward:400, badge:"AI Forge", badgeEmoji:"⚡",
+  missions:[
+    {id:"4.1",title:"What is Claude Code?",isBoss:false,xp:20,
+      explanation:`Claude Code is an AI coding assistant that runs IN your terminal. Unlike Cowork (the desktop app you're using now), it can directly read your files, run commands, and edit your project.
+
+Think of it like having a developer next to you who knows your entire codebase and can take action in it — from inside the terminal.
+
+⚠️ Important: Claude Code is NOT the same as the Claude Desktop app (Cowork). They are two different tools:
+• Claude Desktop / Cowork = a GUI app, great for documents, research, file management
+• Claude Code = a terminal tool, great for coding and working with local project files`,
+      example:`# Claude Code CAN:
+✓ Read and edit your local project files
+✓ Run bash commands on your computer
+✓ Explain what code does
+✓ Fix bugs in your files
+✓ Create new files in your project
+
+# Cowork / Claude Desktop CAN:
+✓ Create Word docs, PDFs, spreadsheets
+✓ Research and summarize topics
+✓ Work with uploaded files
+✓ Web search and browsing
+✗ Cannot touch your local files directly`,
+      quiz:{question:"What can Claude Code do that Cowork (Claude Desktop) cannot?",options:["Answer questions","Explain code","Read and modify your actual local files","Write long documents"],correct:2}
+    },
+    {id:"4.2",title:"Install Claude Code",isBoss:false,xp:15,
+      explanation:`You install Claude Code via npm (from Level 3!). You'll also need an API key from console.anthropic.com.
+
+Important: Claude Code uses API billing separately from Claude Pro. Your Claude Pro subscription covers Cowork and claude.ai — NOT Claude Code terminal sessions. More on this in Level 5.`,
+      example:`# 1. Make sure npm is installed:
+$ npm --version
+
+# 2. Install Claude Code globally:
+$ npm install -g @anthropic-ai/claude-code
+
+# 3. Get your API key from console.anthropic.com
+#    Then set it (WSL/Git Bash — add to .bashrc for permanence):
+$ export ANTHROPIC_API_KEY="sk-ant-..."
+
+# 4. Verify installation:
+$ claude --version
+
+# 5. Navigate to a project folder:
+$ cd ~/Desktop/my-quest
+
+# 6. Start Claude Code:
+$ claude`,
+      quiz:{question:"Where do you get an API key for Claude Code?",options:["claude.ai/settings","console.anthropic.com","github.com/anthropic","npmjs.com"],correct:1}
+    },
+    {id:"4.3",title:"Your First Claude Code Session",isBoss:false,xp:20,
+      explanation:`Navigate to your project folder and type \`claude\` to start. You'll enter an interactive chat where Claude can see all your files.
+
+Try it in the Terminal Simulator (🖥️ tab) — type \`claude\` and you'll enter a simulated Claude Code session!
+
+Claude Code reads your project structure before answering. That's what makes it powerful — it has context.`,
+      example:`# Navigate to project:
+$ cd ~/Desktop/my-quest
+
+# Start Claude Code:
+$ claude
+
+# You'll see the Claude Code interface.
+# Then just chat in plain English:
+
+claude> What files are in this project?
+Claude: I can see: journal.txt, about.md, CLAUDE.md
+
+claude> Create a simple index.html
+Claude: [creates the file and shows you what it did]
+
+claude> /exit
+$ _   # back in your terminal`,
+      quiz:{question:"What do you type to start Claude Code?",options:["claude-code start","anthropic run","claude","ai chat"],correct:2}
+    },
+    {id:"4.4",title:"Give Claude Code a Task",isBoss:false,xp:25,
+      explanation:`The power of Claude Code is delegation. Describe what you want in plain English — Claude figures out the commands and code.
+
+Be specific. The better your instructions, the better the results. Claude Code will often ask clarifying questions before making changes — that's good!
+
+You can also ask Claude Code to explain what commands do — making it a learning tool as well as a doing tool.`,
+      example:`# Inside Claude Code session:
+
+claude> Create a file called README.md with a project description
+Claude: [creates README.md, shows you content, confirms]
+
+claude> Run git status and tell me what to do next
+Claude: [runs git status, reads output, advises you]
+
+claude> What does the -la flag in ls -la mean?
+Claude: The -l flag shows long format (permissions,
+        size, date), and -a shows hidden files too.
+
+claude> Explain the last git commit we made
+Claude: [reads git log, explains in plain English]`,
+      quiz:{question:"Can you ask Claude Code to explain what commands mean?",options:["No, it only writes code","Yes, it's great for explaining terminal concepts too","Only with a special flag","Only after you pay for Pro"],correct:1}
+    },
+    {id:"4.5",title:"Slash Commands — Claude Code Only",isBoss:false,xp:20,
+      explanation:`Claude Code has built-in slash commands. Type them at the \`claude>\` prompt.
+
+⚠️ These slash commands ONLY work inside Claude Code (the terminal tool). They do NOT work in:
+• Your regular terminal (bash/PowerShell)
+• Cowork or Claude Desktop
+• Claude.ai website
+
+They are specific to the Claude Code CLI.`,
+      example:`# Inside Claude Code session ONLY:
+
+/help      — see all available commands
+/clear     — clear chat history (saves tokens!)
+/cost      — see tokens used this session
+/compact   — summarize conversation to free context
+/exit      — quit Claude Code, return to terminal
+
+# Try it! In Terminal Simulator (🖥️ tab):
+# Type: claude  →  then: /help
+
+# ✗ These do NOT work in regular terminal:
+$ /clear   # Error: command not found`,
+      quiz:{question:"Where do Claude Code slash commands like /clear and /cost work?",options:["Anywhere in the terminal","Only in Claude Code sessions","In Claude.ai website too","In Cowork too"],correct:1}
+    },
+    {id:"4.6",title:"Command Cross-Reference: What Works Where?",isBoss:false,xp:30,
+      explanation:`This is what you really need to know! Commands fall into different categories depending on WHERE they work.
+
+Three environments:
+🖥️ Terminal — your WSL/Git Bash/PowerShell shell
+🤖 Claude Code — the AI coding session (started by typing \`claude\`)
+🖱️ Cowork — the Claude Desktop GUI app (this app!)
+
+The good news: bash commands like \`ls\`, \`git\`, \`cd\` work in the terminal, AND Claude Code can run them FOR you. But Claude Code slash commands (/clear, /cost) are exclusive to Claude Code. And Cowork cannot run any shell commands at all.
+
+See the table in the Example section for a complete breakdown.`,
+      example:`COMMAND         | Terminal | Claude Code | Cowork
+────────────────|──────────|─────────────|───────
+ls, cd, pwd     |    ✓     |  runs for   |   ✗
+mkdir, touch    |    ✓     |  you with   |   ✗
+cat, grep, find |    ✓     |  permission |   ✗
+────────────────|──────────|─────────────|───────
+git init        |    ✓     |     ✓       |   ✗
+git add, commit |    ✓     |     ✓       |   ✗
+git push, pull  |    ✓     |     ✓       |   ✗
+────────────────|──────────|─────────────|───────
+/clear /cost    |    ✗     |     ✓       |   ✗
+/compact /exit  |    ✗     |     ✓       |   ✗
+────────────────|──────────|─────────────|───────
+Create .docx    |    ✗     |     ✗       |   ✓
+Web search      |    ✗     |     ✗       |   ✓
+Read PDFs       |    ✗     |     ✗       |   ✓
+
+KEY RULE: Bash commands work in Terminal. Claude Code
+can ALSO run them on your behalf. /slash commands are
+Claude Code exclusive. Document tasks belong in Cowork.`,
+      quiz:{question:"You want to use /cost to check your token usage. Where does this work?",options:["In regular terminal (bash)","In Cowork / Claude Desktop","Only inside a Claude Code session","On the claude.ai website"],correct:2}
+    },
+    {id:"4.7",title:"Cowork vs Claude Code — When to Use Which",isBoss:false,xp:20,
+      explanation:`Both tools use Claude AI but they solve completely different problems. Knowing when to use each is a real skill.
+
+Rule of thumb:
+• Working with files on your computer that you want to CODE? → Claude Code
+• Creating documents, researching, managing tasks? → Cowork
+
+Many developers use both in the same workflow: plan and write docs in Cowork, then code and deploy with Claude Code.`,
+      example:`# Use COWORK when:
+✓ "Create a Word doc with my project plan"
+✓ "Make a spreadsheet of my expenses"
+✓ "Research and summarize a topic"
+✓ "Write a presentation"
+✓ "Create a PDF from these notes"
+
+# Use CLAUDE CODE when:
+✓ "Fix the bug in my Python script"
+✓ "Add a feature to my app"
+✓ "Explain this codebase to me"
+✓ "Set up my project structure"
+✓ "Run git status and help me commit"`,
+      quiz:{question:"You want to fix a bug in your Python app. Which tool?",options:["Cowork","Claude Code","Either works equally","Neither — use Google"],correct:1}
+    },
+    {id:"4.8",title:"Windows Specifics in Claude Code",isBoss:false,xp:20,
+      explanation:`A few Windows-specific things to know when using Claude Code:
+
+1. Install and run Claude Code inside WSL — it works much better than in PowerShell, because Claude Code is designed for a Unix-style environment.
+
+2. Your files are accessible from WSL at \`/mnt/c/Users/swati/...\` (your C: drive is mounted)
+
+3. The API key needs to be set in your WSL environment, not PowerShell
+
+4. npm install works in both, but running \`claude\` works best in WSL or Git Bash`,
+      example:`# Recommended setup for Windows:
+# 1. Open Ubuntu (WSL) from Start menu
+
+# 2. Set your API key:
+$ echo 'export ANTHROPIC_API_KEY="sk-ant-..."' >> ~/.bashrc
+$ source ~/.bashrc
+
+# 3. Install Claude Code:
+$ npm install -g @anthropic-ai/claude-code
+
+# 4. Access Windows files from WSL:
+$ cd /mnt/c/Users/swati/Desktop/my-project
+
+# 5. Start Claude Code:
+$ claude`,
+      quiz:{question:"Where is your Windows C: drive accessible from inside WSL?",options:["/windows/c","/mnt/c","/c/drive","/disk/c"],correct:1}
+    },
+    {id:"4.9",title:"⚔️ Boss Challenge",isBoss:true,xp:165,
+      explanation:`Complete all of this to earn the AI Forge badge:
+
+1. Open the Terminal Simulator (🖥️) and type \`claude\` to enter Claude Code mode
+2. In the simulated session, type \`/help\` to see slash commands
+3. Type \`/cost\` to see simulated token usage
+4. Type something like "What files are in this project?"
+5. Type \`/exit\` to return to shell mode
+
+In your REAL terminal:
+6. Navigate to your my-quest folder
+7. Type \`claude\` to start Claude Code
+8. Ask it to read your project and describe it
+9. Use \`/cost\` to see actual token usage
+10. Use \`/exit\` when done
+
+You've earned the AI Forge badge! ⚡`,
+      example:`# In Terminal Simulator — type these:
+$ claude
+claude> /help
+claude> /cost
+claude> What files are here?
+claude> /exit
+
+# Back in shell:
+$ git status
+
+# In real terminal:
+$ cd ~/Desktop/my-quest
+$ claude
+claude> Read this project and summarize it
+claude> /cost
+claude> /compact
+claude> /exit`,
+      quiz:{question:"After a long Claude Code session to free up context, which command helps most?",options:["/reset","/compact","/free","/clear-cache"],correct:1}
+    }
+  ]
+},
+{
+  id:5, title:"Pro Mode", emoji:"💎", theme:"Tokens, Claude Pro & Advanced Tips",
+  color:"#f59e0b", xpReward:500, badge:"Pro", badgeEmoji:"💎",
+  missions:[
+    {id:"5.1",title:"What Are Tokens?",isBoss:false,xp:20,
+      explanation:`Tokens are how AI models measure text. A token is roughly ¾ of a word — "Hello world" is about 3 tokens.
+
+Every message you send AND every reply Claude gives uses tokens. In Claude Code, every time Claude reads your files to understand context, those files cost tokens too.
+
+This is why large files and long conversations get expensive.`,
+      example:`# Token examples (approximate):
+"Hello"             = 1 token
+"Hello world!"      = 3 tokens
+"git status"        = 2 tokens
+
+# A 200-line Python file
+≈ 1,000-2,000 tokens
+
+# A long Claude Code conversation
+with many file reads ≈ 10,000+ tokens`,
+      quiz:{question:"Roughly how many tokens is a single word?",options:["1 token","About 0.75 tokens","5 tokens","10 tokens"],correct:1}
+    },
+    {id:"5.2",title:"Context Window",isBoss:false,xp:20,
+      explanation:`The context window is how much Claude can "hold in mind" at once. It's measured in tokens.
+
+When a conversation gets too long, older messages fall out of context — Claude "forgets" things you said earlier. This is why \`/compact\` is useful in long Claude Code sessions.
+
+In Cowork/Claude Desktop, a new session starts fresh context. In Claude Code, \`/clear\` or \`/compact\` resets or summarizes the context.`,
+      example:`# Context fills up when:
+- Your conversation is long
+- Claude reads many large files
+- You paste in lots of code
+
+# Signs context is full:
+- Claude "forgets" earlier instructions
+- Responses become less accurate
+
+# Fix it in Claude Code:
+claude> /compact   # summarize to free space
+claude> /clear     # start fresh (loses history)
+
+# Prevention:
+- Use .claudeignore for big files
+- Work in focused sessions
+- Use CLAUDE.md for persistent context`,
+      quiz:{question:"What does /compact do in Claude Code?",options:["Deletes your files","Compresses your code","Summarizes conversation to free up context space","Reduces your API bill instantly"],correct:2}
+    },
+    {id:"5.3",title:"Claude Pro vs API Billing",isBoss:false,xp:25,
+      explanation:`This is a very common source of confusion!
+
+Claude Pro ($20/month) — gives you unlimited usage on claude.ai and Cowork (the desktop app). Does NOT affect Claude Code terminal.
+
+Anthropic API — separate billing, pay per token. Used by Claude Code. Even with Claude Pro, Claude Code costs money via API billing.
+
+They are separate products with separate billing.`,
+      example:`# Claude Pro covers:
+✓ Unlimited Claude.ai chat
+✓ Cowork (this desktop app)
+✓ Latest models on claude.ai
+✓ Priority access during peak times
+✗ Does NOT cover Claude Code terminal
+
+# Anthropic API covers:
+✓ Claude Code in terminal
+✓ Apps you build using the API
+Billed separately, per token used
+
+# Check your API usage:
+→ console.anthropic.com`,
+      quiz:{question:"Does Claude Pro reduce Claude Code terminal costs?",options:["Yes, covers everything","Yes, but only 50%","No, Claude Code uses separate API billing","Yes, for the first month"],correct:2}
+    },
+    {id:"5.4",title:"Managing API Costs",isBoss:false,xp:25,
+      explanation:`Smart habits to keep Claude Code costs low:
+
+1. Use \`/clear\` or \`/compact\` frequently — don't let conversations grow endlessly
+2. Be specific — don't paste entire large files, describe what needs changing
+3. Use \`.claudeignore\` to exclude large/irrelevant files
+4. Use focused sessions — one task per session
+5. Check \`/cost\` regularly to understand your usage`,
+      example:`# Good (specific) prompt — fewer tokens:
+claude> In line 45 of app.py, the loop
+        starts at wrong index. Fix it.
+
+# Bad (vague) — wastes tokens back and forth:
+claude> Fix my code
+
+# Check cost regularly:
+claude> /cost
+Input tokens: 1,247
+Estimated cost: ~$0.002
+
+# Keep sessions short:
+claude> /exit   # done? exit!
+$ claude        # fresh session next time`,
+      quiz:{question:"Which habit helps MOST to reduce Claude Code costs?",options:["Using Claude Pro","Using /clear often and being specific","Using Claude Code offline","Typing faster"],correct:1}
+    },
+    {id:"5.5",title:"The .claudeignore File",isBoss:false,xp:20,
+      explanation:`Just like \`.gitignore\` tells Git which files to skip, \`.claudeignore\` tells Claude Code which files to ignore when reading your project.
+
+This saves tokens AND protects sensitive files (like \`.env\` with your API keys) from being read.`,
+      example:`# Create .claudeignore in your project root:
+$ touch .claudeignore
+
+# Add these common patterns:
+node_modules/
+.env
+*.log
+dist/
+build/
+.DS_Store
+__pycache__/
+*.pyc
+
+# Now Claude Code won't read these files
+# = fewer tokens, private data protected`,
+      quiz:{question:"What's the main benefit of .claudeignore?",options:["Makes Claude Code faster","Prevents Claude reading certain files, saving tokens","Encrypts your project","Backs up your code"],correct:1}
+    },
+    {id:"5.6",title:"The CLAUDE.md File",isBoss:false,xp:25,
+      explanation:`\`CLAUDE.md\` is a special file in your project root. Claude Code reads it automatically at the start of every session — like a permanent briefing note.
+
+Use it to give Claude persistent context: what the project does, your coding preferences, and what NOT to do.
+
+This is how you avoid re-explaining your project every session, which saves both time and tokens.`,
+      example:`# Create CLAUDE.md in your project:
+$ touch CLAUDE.md
+
+# Example content:
+# My Quest Project
+
+## About
+Learning terminal and git. Side project for fun.
+
+## Tech Stack
+HTML, CSS, vanilla JavaScript
+
+## Preferences
+- Explain changes before making them
+- Keep code simple, no frameworks
+- Always add comments
+
+## Important
+- Never delete existing files without asking`,
+      quiz:{question:"Why is CLAUDE.md useful?",options:["Speeds up Claude Code","Claude reads it automatically for project context","Required for Claude Code to work","Stores your API key"],correct:1}
+    },
+    {id:"5.7",title:"Write Great Prompts",isBoss:false,xp:20,
+      explanation:`The quality of what Claude gives you depends heavily on how you ask. Four techniques that dramatically improve results:
+
+1. Be specific about what file and what problem
+2. Say what you DON'T want ("don't change the CSS")
+3. Give context ("this is a beginner project")
+4. Ask step-by-step ("first explain, then fix")`,
+      example:`# Great prompt structure:
+"In [file], at [location], I need [specific thing].
+ Don't change [constraint]. Explain before doing."
+
+# Example:
+claude> In index.html, the button at line 30
+        doesn't work when clicked. Fix just the
+        JavaScript — don't touch the CSS.
+        Explain what was wrong first.
+
+# vs vague (costs more tokens, worse result):
+claude> Fix my code`,
+      quiz:{question:"What makes a great Claude Code prompt?",options:["Short and vague","Specific file, location, constraint, and context","All caps so Claude pays attention","Just paste all your code"],correct:1}
+    },
+    {id:"5.8",title:"⚔️ Boss Challenge",isBoss:true,xp:145,
+      explanation:`Final challenge — set up a professional project:
+
+1. Create your project folder if not done already
+2. Set up Git: \`git init\`, configure name and email
+3. Create \`CLAUDE.md\` with your project info (3+ lines)
+4. Create \`.claudeignore\` with 3+ patterns
+5. Create \`.gitignore\` (add node_modules/, .env)
+6. Make your initial commit with all three files
+7. Push to GitHub
+8. Start Claude Code: \`claude\`
+9. Ask it to read CLAUDE.md and confirm it understands
+10. Check \`/cost\`
+
+You are now a Terminal Pro! 🏆`,
+      example:`$ mkdir pro-project && cd pro-project
+$ git init
+$ git config --global user.name "Swati Gupta"
+
+$ touch CLAUDE.md .claudeignore .gitignore
+
+# Edit each file (use nano or your editor)
+
+$ git add .
+$ git commit -m "Pro project setup"
+
+$ git remote add origin https://github.com/you/pro.git
+$ git push -u origin main
+
+$ claude
+claude> Read CLAUDE.md and confirm you understand
+Claude: I understand! This project is...
+
+claude> /cost
+claude> /exit`,
+      quiz:{question:"What do CLAUDE.md and .claudeignore do together?",options:["Replace .gitignore","CLAUDE.md gives context, .claudeignore hides unnecessary files","Both are required for git push","They encrypt your project"],correct:1}
+    }
+  ]
+}
+];
+
+// ═══════════════════════════════════════════════════
+// CHEAT SHEET DATA
+// ═══════════════════════════════════════════════════
+const CHEATSHEET = [
+  {cat:"🌐 Where Can I Use This?",items:[
+    {cmd:"ls / cd / pwd",desc:"✓ Terminal | ✓ Claude Code runs it | ✗ Cowork"},
+    {cmd:"git commands",desc:"✓ Terminal | ✓ Claude Code runs it | ✗ Cowork"},
+    {cmd:"mkdir / touch / cat",desc:"✓ Terminal | ✓ Claude Code runs it | ✗ Cowork"},
+    {cmd:"/clear /cost /compact",desc:"✗ Terminal | ✓ Claude Code ONLY | ✗ Cowork"},
+    {cmd:"/exit (Claude Code)",desc:"✗ Terminal | ✓ Claude Code ONLY | ✗ Cowork"},
+    {cmd:"Create .docx / .pdf",desc:"✗ Terminal | ✗ Claude Code | ✓ Cowork ONLY"},
+    {cmd:"Web search / browse",desc:"✗ Terminal | ✗ Claude Code | ✓ Cowork ONLY"},
+    {cmd:"npm / pip / node",desc:"✓ Terminal | ✓ Claude Code runs it | ✗ Cowork"},
+  ]},
+  {cat:"Navigation",items:[
+    {cmd:"pwd",desc:"Print current directory path"},
+    {cmd:"ls",desc:"List files in current directory"},
+    {cmd:"ls -la",desc:"List all files including hidden, with details"},
+    {cmd:"cd folder",desc:"Go into a folder"},
+    {cmd:"cd ..",desc:"Go up one level"},
+    {cmd:"cd ~",desc:"Go to home directory"},
+    {cmd:"cd -",desc:"Go back to previous directory"},
+  ]},
+  {cat:"Files & Folders",items:[
+    {cmd:"mkdir name",desc:"Create a new folder"},
+    {cmd:"touch file.txt",desc:"Create an empty file (WSL/Git Bash)"},
+    {cmd:"New-Item file.txt",desc:"Create a file (PowerShell)"},
+    {cmd:"cat file.txt",desc:"Print file contents"},
+    {cmd:"less file.txt",desc:"Read file with scrolling (q to quit)"},
+    {cmd:"cp src dest",desc:"Copy a file"},
+    {cmd:"mv src dest",desc:"Move or rename a file"},
+    {cmd:"rm file",desc:"Delete a file (permanent!)"},
+    {cmd:"rm -rf folder",desc:"Delete a folder and all contents"},
+  ]},
+  {cat:"Search",items:[
+    {cmd:"grep 'text' file",desc:"Find text in a file"},
+    {cmd:"grep -r 'text' .",desc:"Search all files recursively"},
+    {cmd:"grep -i 'text' file",desc:"Case-insensitive search"},
+    {cmd:"grep -n 'text' file",desc:"Show line numbers in results"},
+    {cmd:"find . -name '*.txt'",desc:"Find files by name pattern"},
+    {cmd:"Select-String 'x' f",desc:"PowerShell equivalent of grep"},
+  ]},
+  {cat:"Pipes & Redirection",items:[
+    {cmd:"cmd1 | cmd2",desc:"Send output of cmd1 to cmd2"},
+    {cmd:"ls | wc -l",desc:"Count number of files"},
+    {cmd:"cmd > file",desc:"Save output to file (overwrites)"},
+    {cmd:"cmd >> file",desc:"Append output to file"},
+    {cmd:"cat file | grep 'x'",desc:"Filter file contents"},
+  ]},
+  {cat:"Git",items:[
+    {cmd:"git init",desc:"Initialize a Git repository"},
+    {cmd:"git status",desc:"Show changed files"},
+    {cmd:"git add .",desc:"Stage all changes"},
+    {cmd:"git commit -m 'msg'",desc:"Save a commit with message"},
+    {cmd:"git log",desc:"Show commit history (q to quit)"},
+    {cmd:"git diff",desc:"Show line-by-line changes"},
+    {cmd:"git push",desc:"Upload commits to GitHub"},
+    {cmd:"git pull",desc:"Download latest from GitHub"},
+    {cmd:"git clone <url>",desc:"Download a GitHub repo"},
+    {cmd:"git remote add origin <url>",desc:"Connect folder to GitHub"},
+    {cmd:"git branch -M main",desc:"Rename branch to main"},
+    {cmd:"git push -u origin main",desc:"First push to GitHub (sets tracking)"},
+  ]},
+  {cat:"Claude Code (terminal only)",items:[
+    {cmd:"claude",desc:"Start a Claude Code session"},
+    {cmd:"claude --version",desc:"Check Claude Code version"},
+    {cmd:"/help",desc:"Show all slash commands (Claude Code only)"},
+    {cmd:"/clear",desc:"Clear conversation history (frees tokens)"},
+    {cmd:"/cost",desc:"Show token usage for this session"},
+    {cmd:"/compact",desc:"Summarize conversation to save context"},
+    {cmd:"/exit",desc:"Exit Claude Code, return to terminal"},
+    {cmd:"CLAUDE.md",desc:"File Claude reads automatically for project context"},
+    {cmd:".claudeignore",desc:"Tell Claude which files to skip"},
+  ]},
+  {cat:"Shell Profile",items:[
+    {cmd:"nano ~/.bashrc",desc:"Edit bash profile (WSL / Git Bash)"},
+    {cmd:"source ~/.bashrc",desc:"Apply profile changes without restarting"},
+    {cmd:"notepad $PROFILE",desc:"Edit PowerShell profile"},
+    {cmd:"export KEY=value",desc:"Set env variable (WSL/Git Bash)"},
+    {cmd:"$env:KEY = 'value'",desc:"Set env variable (PowerShell)"},
+    {cmd:"echo $VARIABLE",desc:"Read env variable (WSL/Git Bash)"},
+    {cmd:"alias ll='ls -la'",desc:"Create a command shortcut"},
+  ]},
+  {cat:"Windows Specifics",items:[
+    {cmd:"wsl --install",desc:"Install WSL (run in PowerShell as admin)"},
+    {cmd:"winget install Git.Git",desc:"Install Git for Windows via winget"},
+    {cmd:"/mnt/c/Users/name",desc:"Access C: drive from inside WSL"},
+    {cmd:"Get-Content file",desc:"PowerShell equivalent of cat"},
+    {cmd:"Get-ChildItem",desc:"PowerShell equivalent of ls"},
+    {cmd:"Set-Location folder",desc:"PowerShell equivalent of cd"},
+  ]},
+];
+
+// ═══════════════════════════════════════════════════
+// STATE & PROGRESS
+// ═══════════════════════════════════════════════════
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem('tq_v2')||'null')||{completed:[],xp:0,badges:[]};}
+  catch(e){return{completed:[],xp:0,badges:[]};}
+}
+function saveProgress(){localStorage.setItem('tq_v2',JSON.stringify(progress));}
+
+let progress = loadProgress();
+let view = 'home';
+let selLevel = null;
+let selMission = null;
+let quizSel = null;
+let quizDone = false;
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+function done(mid){return progress.completed.includes(mid);}
+function levelDone(lid){return LEVELS.find(l=>l.id===lid).missions.every(m=>done(m.id));}
+function unlocked(lid){return lid===1||levelDone(lid-1);}
+function totalXP(){return LEVELS.reduce((s,l)=>s+l.missions.reduce((ms,m)=>ms+(done(m.id)?m.xp:0),0),0);}
+function maxXP(){return LEVELS.reduce((s,l)=>s+l.missions.reduce((ms,m)=>ms+m.xp,0),0);}
+function levelProgress(lid){
+  const l=LEVELS.find(x=>x.id===lid);
+  const d=l.missions.filter(m=>done(m.id)).length;
+  return{done:d,total:l.missions.length,pct:Math.round(d/l.missions.length*100)};
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function render(){
+  let html='';
+  if(view==='home') html=renderHome();
+  else if(view==='level') html=renderLevel();
+  else if(view==='mission') html=renderMission();
+  else if(view==='cheatsheet') html=renderCheatsheet();
+  else if(view==='badges') html=renderBadges();
+  else if(view==='terminal') html=renderTerminal();
+  document.getElementById('app').innerHTML=html+renderNav();
+  if(view==='terminal') initTerminal();
+  else attachEvents();
+  window.scrollTo(0,0);
+}
+
+function renderNav(){
+  const tabs=[
+    {id:'home',label:'Levels',icon:'🗺️'},
+    {id:'terminal',label:'Terminal',icon:'🖥️'},
+    {id:'cheatsheet',label:'Cheat Sheet',icon:'📋'},
+    {id:'badges',label:'Badges',icon:'🏅'},
+  ];
+  return `<nav class="bottom-nav">${tabs.map(t=>`
+    <button class="nav-btn ${view===t.id?'active':''}" data-action="nav" data-value="${t.id}">
+      <span class="icon">${t.icon}</span>${t.label}
+    </button>`).join('')}</nav>`;
+}
+
+function renderHome(){
+  const xp=totalXP(), mx=maxXP();
+  const pct=mx?Math.round(xp/mx*100):0;
+  return `
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">Terminal<span>Quest</span> 🎮</div>
+      <div class="xp-chip">⭐ ${xp.toLocaleString()} XP</div>
+    </div>
+    <div class="xp-bar-wrap"><div class="xp-bar" style="width:${pct}%"></div></div>
+    <div class="xp-label"><span>${pct}% complete</span><span>${mx.toLocaleString()} total XP</span></div>
+  </div>
+  <div class="home-hero">
+    <h1>Your Quest Awaits 🌟</h1>
+    <p>Learn Git, Bash & Claude Code — one mission at a time. Use 🖥️ Terminal tab to practice!</p>
+  </div>
+  <div class="section-title">LEVELS</div>
+  ${LEVELS.map(l=>{
+    const lp=levelProgress(l.id);
+    const isUnlocked=unlocked(l.id);
+    const isComplete=levelDone(l.id);
+    return `
+    <div class="card ${!isUnlocked?'locked':''}" data-action="${isUnlocked?'goto-level':''}" data-value="${l.id}">
+      <div class="level-banner" style="background:${l.color}"></div>
+      <div class="card-inner">
+        <div class="level-meta">
+          <div>
+            <div class="level-num">Level ${l.id}</div>
+            <div class="level-title">${l.emoji} ${l.title}</div>
+            <div class="level-theme">${l.theme}</div>
+          </div>
+          ${!isUnlocked?`<div class="lock-badge">🔒</div>`:
+            isComplete?`<div class="complete-badge">✓ DONE</div>`:
+            `<div class="level-badge" style="opacity:0.8">${l.emoji}</div>`}
+        </div>
+        <div class="level-progress">
+          <div class="mini-bar-wrap"><div class="mini-bar" style="width:${lp.pct}%;background:${l.color}"></div></div>
+          <div class="level-stats">${lp.done}/${lp.total} missions · ${l.xpReward} XP</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}
+  <div class="spacer"></div>`;
+}
+
+function renderLevel(){
+  if(!selLevel) return renderHome();
+  const l=LEVELS.find(x=>x.id===selLevel);
+  const lp=levelProgress(selLevel);
+  return `
+  <button class="back-btn" data-action="nav" data-value="home">← Levels</button>
+  <div class="level-hero">
+    <div class="level-title" style="color:${l.color};font-size:22px;font-weight:800;">${l.emoji} ${l.title}</div>
+    <div class="level-hero-sub">${l.theme} · ${lp.done}/${lp.total} missions complete</div>
+  </div>
+  <div class="mission-list">
+    ${l.missions.map(m=>{
+      const isDone=done(m.id);
+      return `
+      <button class="mission-row" data-action="goto-mission" data-mid="${m.id}">
+        <div class="mission-icon ${isDone?'done':''} ${m.isBoss?'boss':''}">
+          ${isDone?'✅':m.isBoss?'⚔️':'📜'}
+        </div>
+        <div class="mission-text">
+          <div class="mission-title-row">
+            <span class="mission-name">${m.title}</span>
+            ${m.isBoss?`<span class="boss-tag">BOSS</span>`:''}
+          </div>
+          <div class="mission-xp">+${m.xp} XP${isDone?' · completed':''}</div>
+        </div>
+        <div class="mission-arrow">›</div>
+      </button>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderMission(){
+  const l=LEVELS.find(lv=>lv.missions.find(m=>m.id===selMission));
+  if(!l) return renderHome();
+  const m=l.missions.find(x=>x.id===selMission);
+  const isDone=done(m.id);
+  const canComplete=quizDone&&quizSel===m.quiz.correct;
+  const fmtText=(t)=>t.replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br>');
+  const fmtCode=(c)=>c.replace(/^(#.*)$/gm,'<span class="comment">$1</span>').replace(/^(\$ .+)$/gm,'<span class="cmd">$1</span>');
+
+  return `
+  <button class="back-btn" data-action="goto-level-back">← ${l.emoji} ${l.title}</button>
+  <div class="mission-header">
+    <div class="mission-header-emoji">${m.isBoss?'⚔️':'📜'}</div>
+    <div class="mission-header-title">${m.title}</div>
+    <div class="mission-header-meta">Mission ${m.id} · +${m.xp} XP${m.isBoss?' · Boss Challenge':''}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Explanation</div>
+    <div class="explanation">${fmtText(m.explanation)}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Example</div>
+    <div class="code-block"><pre>${fmtCode(m.example)}</pre></div>
+  </div>
+
+  <div class="section"><div class="section-label">Knowledge Check</div></div>
+  <div class="quiz-box">
+    <div class="quiz-q">${m.quiz.question}</div>
+    <div class="quiz-options">
+      ${m.quiz.options.map((opt,i)=>{
+        let cls='quiz-opt';
+        if(quizDone){
+          if(i===m.quiz.correct) cls+=' correct';
+          else if(i===quizSel&&quizSel!==m.quiz.correct) cls+=' wrong';
+          else cls+=' unselected-correct';
+          cls+=' answered';
+        }
+        return `<button class="${cls}" data-action="quiz" data-i="${i}" ${quizDone?'disabled':''}>
+          ${quizDone?(i===m.quiz.correct?'✓ ':'✗ '):''}${opt}
+        </button>`;
+      }).join('')}
+    </div>
+    ${quizDone?`<div class="quiz-feedback ${quizSel===m.quiz.correct?'good':'bad'}">
+      ${quizSel===m.quiz.correct?'🎉 Correct! Well done!':'💡 Not quite — the correct answer is highlighted above.'}
+    </div>`:''}
+  </div>
+
+  ${isDone?`<div class="already-done">✅ Mission completed! +${m.xp} XP earned</div>`:
+    canComplete?`<button class="complete-btn" data-action="complete">Mark Complete & Claim ${m.xp} XP ⭐</button>`:
+    `<button class="complete-btn" disabled>${quizDone?'Answer correctly to complete':'Answer the quiz to continue'}</button>`}
+  <div class="spacer"></div>`;
+}
+
+function renderTerminal(){
+  const startLines = [
+    {text:'Terminal Quest Simulator v1.0', cls:'info'},
+    {text:'iPhone-friendly terminal practice environment', cls:'dim'},
+    {text:'', cls:'output'},
+    {text:'Type commands below to practice. Try: help', cls:'dim'},
+    {text:'Type `claude` to enter Claude Code mode', cls:'dim'},
+    {text:'Type `clear` to clear the screen', cls:'dim'},
+    {text:'', cls:'output'},
+  ];
+  if (termLines.length === 0) termLines = startLines;
+
+  return `
+  <div class="term-wrap">
+    <div class="term-toolbar">
+      <div class="term-toolbar-title">🖥️ Terminal Simulator</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="term-clear-btn" id="term-clear-all">Clear</button>
+        <div class="term-mode-badge" id="term-mode-badge">🟢 Shell</div>
+      </div>
+    </div>
+    <div class="term-hint">
+      <strong>Practice safely!</strong> Try: <code>ls</code> · <code>cd Desktop</code> · <code>git init</code> · <code>claude</code> then <code>/help</code>
+    </div>
+    <div class="term-output" id="term-out"></div>
+    <div class="term-input-row">
+      <span class="term-prompt-label" id="term-prompt-label">swati@quest:~$ </span>
+      <input class="term-input" id="term-input" type="text" placeholder="type a command..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <button class="term-send" id="term-send">↵</button>
+    </div>
+  </div>`;
+}
+
+function renderCheatsheet(){
+  return `
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">📋 Cheat Sheet</div>
+    </div>
+  </div>
+  <div class="cheat-search">
+    <span style="color:var(--muted);font-size:18px;">🔍</span>
+    <input type="text" id="cheat-search-input" placeholder="Search commands..." oninput="filterCheat(this.value)">
+  </div>
+  <div id="cheat-content">
+    ${CHEATSHEET.map(cat=>`
+      <div class="cheat-cat">${cat.cat}</div>
+      ${cat.items.map(item=>`
+        <div class="cheat-row">
+          <div class="cheat-cmd">${item.cmd}</div>
+          <div class="cheat-desc">${item.desc}</div>
+        </div>`).join('')}
+    `).join('')}
+  </div>`;
+}
+
+function renderBadges(){
+  const xp=totalXP();
+  const totalMissions=LEVELS.reduce((s,l)=>s+l.missions.length,0);
+  return `
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">🏅 Badges</div>
+      <div class="xp-chip">⭐ ${xp.toLocaleString()} XP</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="badges-grid">
+    ${LEVELS.map(l=>{
+      const earned=progress.badges.includes(l.badge);
+      return `
+      <div class="badge-card ${earned?'earned':'locked'}">
+        <div class="badge-emoji">${l.badgeEmoji}</div>
+        <div class="badge-name">${l.badge}</div>
+        <div class="badge-level">Level ${l.id}: ${l.title}</div>
+        <div class="badge-status ${earned?'earned':'locked'}">${earned?'🌟 Earned!':'🔒 Locked'}</div>
+      </div>`;
+    }).join('')}
+    <div class="badge-card ${progress.completed.length===totalMissions?'earned':'locked'}">
+      <div class="badge-emoji">🏆</div>
+      <div class="badge-name">Terminal Master</div>
+      <div class="badge-level">Complete all 5 levels</div>
+      <div class="badge-status ${progress.completed.length===totalMissions?'earned':'locked'}">${progress.completed.length===totalMissions?'🌟 Earned!':'🔒 Locked'}</div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// TERMINAL INIT & EVENTS
+// ═══════════════════════════════════════════════════
+function initTerminal(){
+  termRender();
+  const input = document.getElementById('term-input');
+  const send = document.getElementById('term-send');
+  const clearAll = document.getElementById('term-clear-all');
+
+  if (!input) return;
+
+  input.focus();
+
+  function submit(){
+    const val = input.value;
+    input.value = '';
+    handleTermCommand(val);
+    termRender();
+    input.focus();
+  }
+
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      submit();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (termHistoryIdx < termHistory.length-1) {
+        termHistoryIdx++;
+        input.value = termHistory[termHistoryIdx];
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (termHistoryIdx > 0) {
+        termHistoryIdx--;
+        input.value = termHistory[termHistoryIdx];
+      } else {
+        termHistoryIdx = -1;
+        input.value = '';
+      }
+    }
+  });
+
+  send.addEventListener('click', submit);
+
+  clearAll.addEventListener('click', function(){
+    termLines = [];
+    termRender();
+    input.focus();
+  });
+
+  // Click anywhere in terminal output to refocus input
+  const termOut = document.getElementById('term-out');
+  if (termOut) termOut.addEventListener('click', () => input.focus());
+
+  // nav buttons need event delegation from nav
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const val = this.dataset.value;
+      if (val) { view = val; quizSel=null; quizDone=false; render(); }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// EVENTS (non-terminal views)
+// ═══════════════════════════════════════════════════
+function attachEvents(){
+  document.addEventListener('click', handleClick, {once:true});
+}
+
+function handleClick(e){
+  const btn=e.target.closest('[data-action]');
+  if(!btn){attachEvents();return;}
+  const action=btn.dataset.action;
+
+  if(action==='nav'){
+    view=btn.dataset.value;
+    quizSel=null; quizDone=false;
+    render();
+  } else if(action==='goto-level'){
+    const lid=parseInt(btn.dataset.value);
+    if(unlocked(lid)){selLevel=lid; view='level'; render();}
+  } else if(action==='goto-level-back'){
+    view='level'; quizSel=null; quizDone=false; render();
+  } else if(action==='goto-mission'){
+    selMission=btn.dataset.mid;
+    quizSel=null; quizDone=false;
+    view='mission'; render();
+  } else if(action==='quiz'){
+    if(quizDone){attachEvents();return;}
+    quizSel=parseInt(btn.dataset.i);
+    const m=LEVELS.flatMap(l=>l.missions).find(x=>x.id===selMission);
+    quizDone=true;
+    render();
+  } else if(action==='complete'){
+    const l=LEVELS.find(lv=>lv.missions.find(m=>m.id===selMission));
+    const m=l.missions.find(x=>x.id===selMission);
+    if(!done(m.id)){
+      progress.completed.push(m.id);
+      progress.xp+=m.xp;
+      if(levelDone(l.id)&&!progress.badges.includes(l.badge)){
+        progress.badges.push(l.badge);
+      }
+      saveProgress();
+    }
+    render();
+  } else {
+    attachEvents();
+  }
+}
+
+window.filterCheat=function(query){
+  const q=query.toLowerCase().trim();
+  const content=document.getElementById('cheat-content');
+  if(!content) return;
+  if(!q){
+    content.innerHTML=CHEATSHEET.map(cat=>`
+      <div class="cheat-cat">${cat.cat}</div>
+      ${cat.items.map(item=>`
+        <div class="cheat-row">
+          <div class="cheat-cmd">${item.cmd}</div>
+          <div class="cheat-desc">${item.desc}</div>
+        </div>`).join('')}
+    `).join('');
+    return;
+  }
+  let results='';
+  CHEATSHEET.forEach(cat=>{
+    const matches=cat.items.filter(item=>
+      item.cmd.toLowerCase().includes(q)||item.desc.toLowerCase().includes(q)
+    );
+    if(matches.length){
+      results+=`<div class="cheat-cat">${cat.cat}</div>`;
+      matches.forEach(item=>{
+        results+=`<div class="cheat-row">
+          <div class="cheat-cmd">${item.cmd}</div>
+          <div class="cheat-desc">${item.desc}</div>
+        </div>`;
+      });
+    }
+  });
+  content.innerHTML=results||`<div style="padding:20px;text-align:center;color:var(--muted)">No results for "${query}"</div>`;
+};
+
+// ═══════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
